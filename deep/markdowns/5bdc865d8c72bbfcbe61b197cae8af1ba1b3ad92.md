@@ -1,0 +1,21 @@
+# trailofbits/dwarf-expert
+
+> DWARF debugging format expertise
+
+## 基本信息
+
+| 字段 | 内容 |
+|---|---|
+| 名称 | trailofbits/dwarf-expert |
+| 链接 | https://officialskills.sh/trailofbits/skills/dwarf-expert |
+| 来源聚合 | Security Skills by Trail of Bits Team |
+| 分类路径 | 安全 / 应用安全 / 应用安全 |
+| 类型 | AI Skill / Agent Tool |
+
+## 简介
+
+DWARF debugging format expertise
+
+## 参考链接
+
+- https://officialskills.sh/trailofbits/skills/dwarf-expert
