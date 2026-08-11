@@ -1,0 +1,29 @@
+{
+  "owner": "hwalme",
+  "repo": "ai-skills",
+  "spec": "agentskills.io/v1.0",
+  "license": "MIT",
+  "updated": "2026-08-11",
+  "published": [
+    {
+      "name": "secure-file-shred",
+      "path": "skills/secure-file-shred",
+      "description": "Real secure file deletion: zero-fill + random-byte overwrite + fsync + unlink. Use for 'secure delete / shred / physically erase' requests. Cross-platform (Windows dir-fsync is best-effort).",
+      "forms": ["general", "commercial"],
+      "source": "crypshare secureDelete implementation"
+    },
+    {
+      "name": "cinema-ai-video-pipeline",
+      "path": "skills/cinema-ai-video-pipeline",
+      "description": "End-to-end ZERO-COST AI video pipeline (script->image->voice->video): DeepSeek V3 + Pollinations Flux + edge-tts + Remotion. Three-form strategy: film / web-comic / commercial ad.",
+      "forms": ["film", "web-comic", "commercial"],
+      "source": "Cinema project zero-cost stack"
+    }
+  ],
+  "catalog": {
+    "markdown": "catalog/AI-Skills分类总览.md",
+    "interactive": "skills-catalog.html",
+    "boards": 11,
+    "deepest": "AIGC > 生视频 > 文生视频 > ComfyUI 工作流"
+  }
+}
