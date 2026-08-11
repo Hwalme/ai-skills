@@ -1,0 +1,189 @@
+<div align="center">
+<img width="3148" height="1828" alt="CleanShot 2026-07-13 at 20 15 47@2x" src="https://github.com/user-attachments/assets/4984e98c-d53e-4191-a64a-59533cbc0847" />
+<img width="3350" height="1802" alt="CleanShot 2026-07-13 at 20 16 54@2x" src="https://github.com/user-attachments/assets/2e912363-8f86-4754-adc9-d6b23f798abd" />
+
+# Goose Skills
+
+**Growth skills for AI agents. Ready-to-use skills for ads, social media, content, marketing, competitive intelligence, SEO, lead generation and GTM.**
+
+Browse all skills at https://skills.gooseworks.ai
+
+Works with [Claude Code](https://claude.ai/claude-code) &middot; [Cursor](https://cursor.sh) &middot; [Codex](https://openai.com/codex)
+
+[![npm version](https://img.shields.io/npm/v/goose-skills?color=blue)](https://www.npmjs.com/package/goose-skills)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Skills](https://img.shields.io/badge/skills-200%2B-orange)]()
+
+</div>
+
+---
+
+## Contents
+
+- [Quick Start](#-quick-start)
+- [Commands](#-commands)
+- [Skills Catalog](#-skills-catalog)
+- [Usage Examples](#-usage-examples)
+- [Building from Source](#-building-from-source)
+- [Skill Metadata Contract](#-skill-metadata-contract)
+- [Security & Trust](#-security--trust)
+- [License](#-license)
+
+---
+
+## Quick Start
+
+
+### AI Coding Agents (Claude Code, Cursor, Codex, etc)
+**Paste this into your coding agent** (Claude Code, Cursor, or Codex) and it'll set everything up:
+
+```
+Install the Gooseworks skills:
+
+In the terminal, run `npx gooseworks install --all`.
+
+Then run `npx gooseworks login` and it'll open a browser to sign in and set up the tools, then confirm it worked.
+
+The skills can be used with /gooseworks <prompt>
+```
+
+### Claude Cowork
+
+Run this command in a terminal first:
+```
+npx gooseworks install --all
+```
+
+Then authenticate:
+```
+npx gooseworks login
+```
+
+Then make sure you're working inside a local folder on your machine, and then you can use the skills in Cowork like this:
+```
+Use /gooseworks skill to generate some ad creatives
+```
+
+
+### Install manually
+Prefer to run it yourself? Use the command directly:
+
+```bash
+npx gooseworks install --all       # All detected agents
+```
+
+This gives your coding agent access to the **full catalog of 200+ skills**. After installing, just ask your agent to use any skill by name.
+
+> If you want a cloud-based AI coworker that already knows all these skills and more, sign up to [Gooseworks](https://app.gooseworks.ai)
+
+---
+
+## Commands
+
+```bash
+npx gooseworks search "reddit scraping"   # Search the skill catalog
+npx gooseworks credits                     # Check your credit balance
+npx gooseworks update                      # Update to latest skill version
+```
+
+---
+
+## Skills Catalog
+
+200+ skills across the growth stack, grouped by focus area:
+
+| Category | What's inside |
+|----------|---------------|
+| **Ads** | Research, build, and analyze paid campaigns across Meta and Google |
+| **SEO** | Keyword research, content gaps, SERP analysis, technical audits |
+| **Lead generation** | Find, enrich, and qualify prospects for your pipeline |
+| **Outreach** | Draft, personalize, and run outbound across email and social |
+| **Content** | Blog posts, social content, carousels, video scripts, newsletters |
+| **Research** | Company, market, and prospect deep-dives |
+| **Competitive intel** | Track competitor pricing, launches, positioning, and ads |
+| **Monitoring** | Watch for mentions, signals, and changes across the web |
+| **Social** | Scrape and analyze social platforms and audiences |
+| **Brand** | Voice, positioning, and visual brand assets |
+
+Browse and search every skill at **[skills.gooseworks.ai](https://skills.gooseworks.ai)**.
+
+---
+
+## Usage Examples
+
+After installing, just ask your coding agent naturally:
+
+```
+"/gooseworks Generate static ad creatives for my brand"
+"/gooseworks Use the reddit-post-finder skill to search r/startups"
+"/gooseworks Use the apollo-lead-finder skill to find CTOs at AI companies"
+"/gooseworks Use the competitor-intel skill to research Acme Corp"
+"/gooseworks Use the goose-graphics skill to create a LinkedIn carousel about our launch"
+```
+
+Your agent will search the GooseWorks catalog, download the skill, and run it automatically.
+
+---
+
+## Building from Source
+
+```bash
+git clone https://github.com/gooseworks-ai/goose-skills.git
+cd goose-skills
+node scripts/validate-skills.js  # Validate SKILL.md + skill.meta.json contract
+node scripts/build-index.js      # Generate skills-index.json
+node bin/goose-skills.js list    # Test locally
+```
+
+---
+
+## Skill Metadata Contract
+
+Each skill directory must include:
+
+- **`SKILL.md`** — Skill documentation and usage guide
+- **`skill.meta.json`** — Machine-readable metadata
+
+`skill.meta.json` fields:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `slug` | Yes | Unique kebab-case identifier |
+| `category` | Yes | `capabilities`, `composites`, or `playbooks` |
+| `tags` | Yes | String array of category tags |
+| `installation.base_command` | Yes | Install command |
+| `installation.supports` | Yes | Array: `claude`, `codex`, `cursor` |
+| `features` | No | Feature flags |
+| `github_url` | No | Source repository URL |
+| `author` | No | Skill author |
+| `example_prompt` | No | Copyable prompt shown in the catalog and docs for trying the skill |
+
+---
+
+## Security & Trust
+
+These skills run inside your coding agent, so it's worth knowing exactly what they do:
+
+- **Open source & inspectable.** Every skill — its `SKILL.md` instructions and all scripts — lives in this repo under the MIT license. The `gooseworks` CLI fetches skills at runtime so recipes stay current, but the source you'd run is right here to read, diff, or pin before you run it.
+- **Scripts run locally.** Skill scripts execute on your machine and write to `/tmp/gooseworks-scripts/`, never into your project directory. Only API requests go through GooseWorks servers; review any script before letting your agent run it.
+- **Your agent stays in control.** The skills are a tool your agent reaches for when it fits the task (data at scale, sources behind auth, a specific provider) — not a replacement for its built-in web search or fetch on quick lookups. You can read or edit any installed `SKILL.md` to tune that behavior.
+- **Credentials stay local.** Auth is a Bearer token stored at `~/.gooseworks/credentials.json` (file mode `0600`). Third-party provider keys (Apify, Apollo, etc.) are held server-side — your token never touches them. All network calls are HTTPS.
+- **The MCP server is opt-in.** Registering the GooseWorks MCP server is off by default; it only happens if you explicitly run `gooseworks install --mcp`.
+
+Found something that looks off? [Open an issue](https://github.com/gooseworks-ai/goose-skills/issues) — we'd rather fix it in public.
+
+---
+
+## License
+
+MIT &mdash; see [LICENSE](LICENSE) for details.
+
+The skill files and CLI in this repository are MIT-licensed. The GooseWorks API they connect to is a separate paid service governed by its own [terms](https://gooseworks.ai/terms).
+
+<div align="center">
+
+**Built by [GooseWorks](https://gooseworks.sh)**
+
+[Get Started](https://app.gooseworks.ai) &middot; [Report an Issue](https://github.com/gooseworks-ai/goose-skills/issues)
+
+</div>

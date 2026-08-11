@@ -1,0 +1,266 @@
+# brendangregg-use-tsa-skill
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Format: Agent Skills (SKILL.md)](https://img.shields.io/badge/format-Agent%20Skills%20(SKILL.md)-blue)](https://agentskills.io)
+[![Methods: USE + TSA](https://img.shields.io/badge/methods-USE%20%2B%20TSA%20%2B%20off--CPU-orange)](references/use-method.md)
+[![Vendor agnostic](https://img.shields.io/badge/vendor-agnostic-green)](#installation)
+
+**A vendor-agnostic performance-troubleshooting skill for AI agents.** It
+teaches any coding agent / LLM how to debug a slow system the way Brendan
+Gregg would: pose questions first, then find metrics to answer them — using
+the **USE Method** (Utilization, Saturation, Errors) and the **TSA Method**
+(Thread State Analysis), backed by off-CPU analysis, flame graphs, and a full
+methodology toolbox — and how to finish the job with evidence-backed **RCA
+reports and postmortems**.
+
+Works with Claude Code, Kimi Code, OpenAI Codex, OpenClaw, Gemini CLI, Cursor,
+Windsurf, Aider — and any agent that can read a `SKILL.md` (or a markdown
+file at all).
+
+## Why this skill exists
+
+Most agents debug performance the drunk-man way: change things at random until
+the problem goes away, or run the three commands they happen to know (the
+"streetlight anti-method"). This skill replaces that with procedure:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ 0. PROBLEM STATEMENT   What makes you think there's a problem?  │
+│                        What changed? Quantify it (latency/time) │
+└──────────────────────────────┬──────────────────────────────────┘
+                               ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. TRIAGE (60s)        errors + saturation first, then util     │
+│    Linux: uptime dmesg vmstat mpstat pidstat iostat free sar top│
+└──────────────────────────────┬──────────────────────────────────┘
+                               ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 2. USE SWEEP           for EVERY resource:                      │
+│    (resource-oriented)   Utilization · Saturation · Errors      │
+│    CPUs, memory, NICs, disks, controllers, interconnects,       │
+│    locks, thread pools, FDs, cgroup/hypervisor limits           │
+└──────────────────────────────┬──────────────────────────────────┘
+                               ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 3. TSA SWEEP           for EVERY thread of interest:            │
+│    (thread-oriented)     Executing · Runnable · AnonPaging ·    │
+│                          Sleeping · Lock · Idle                 │
+│    >10% Runnable or AnonPaging? Fix those first — they go to 0  │
+└──────────────────────────────┬──────────────────────────────────┘
+                               ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 4. DRILL DOWN          follow the biggest contributor:          │
+│    flame graphs (on-CPU) · off-CPU stacks (blocked) ·           │
+│    time-division (latency) · RED (microservices) · 5 Whys       │
+└──────────────────────────────┬──────────────────────────────────┘
+                               ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 5. CONFIRM ROOT CAUSE  causal chain, every link evidence-backed │
+│ 6. FIX & VERIFY        re-measure with the SAME instruments     │
+│ 7. REPORT              triage note / RCA report / postmortem    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+The discipline is the product: every claim traces to a command and its
+output; exonerated resources and dead-end hypotheses stay on the record;
+unknowns are marked as known-unknowns; dates are absolute.
+
+## What's in the box
+
+| Path | Contents |
+| --- | --- |
+| [`SKILL.md`](SKILL.md) | The skill: golden rules + 7-phase master procedure + anti-patterns. Agents read this first |
+| [`references/use-method.md`](references/use-method.md) | The USE Method, complete: definitions, resource lists, metric tables, interpretations, strategy, the Apollo 1202-alarm worked example |
+| [`references/tsa-method.md`](references/tsa-method.md) | The TSA Method, complete: the six states, latency-states rule, Idle caveat, why component timers mislead |
+| [`references/use-linux-checklist.md`](references/use-linux-checklist.md) | Every Linux USE metric: exact commands per resource × utilization/saturation/errors, incl. software resources + Rosetta Stone cross-OS summary |
+| [`references/tsa-linux.md`](references/tsa-linux.md) | TSA on Linux, state by state (`/proc`, `perf`, eBPF/bcc) — a labeled reconstruction (see Provenance), plus the Solaris `prstat -mLc` mapping |
+| [`references/linux-60s-triage.md`](references/linux-60s-triage.md) | "Linux Performance Analysis in 60,000 Milliseconds" — the ten commands and exactly what each field means |
+| [`references/linux-observability-tools.md`](references/linux-observability-tools.md) | The tool map by system layer (sar, perf, bcc/bpftrace, static, benchmarking, tuning) + gotchas |
+| [`references/offcpu-and-flame-graphs.md`](references/offcpu-and-flame-graphs.md) | Off-CPU analysis procedure, overhead caveats, wakeup stacks; flame graph reading/generation, all graph types |
+| [`references/methodology-toolbox.md`](references/methodology-toolbox.md) | 24 methodologies + 6 anti-methodologies + performance mantras + Gregg's recommended try-order |
+| [`templates/`](templates) | Fill-in report templates: [triage](templates/triage-report.md), [RCA](templates/rca-report.md), [postmortem](templates/postmortem-report.md) |
+| [`examples/example-postmortem.md`](examples/example-postmortem.md) | A finished postmortem (cgroup CPU throttling) showing the expected depth and evidence style |
+
+## Installation
+
+The skill is a directory containing `SKILL.md` — clone this repo into the
+skills directory of your agent(s). Commands below install for the **current
+user**; project-level variants are noted per agent.
+
+### Claude Code
+
+```bash
+git clone https://github.com/thecsdoctor/brendangregg-use-tsa-skill \
+  ~/.claude/skills/brendangregg-use-tsa
+```
+
+- Project-level: clone into `<project>/.claude/skills/brendangregg-use-tsa`.
+- Use: Claude Code loads it automatically when the task matches (that's what
+  the `description` is for), or invoke it explicitly with
+  `/brendangregg-use-tsa`.
+
+### Kimi Code
+
+```bash
+git clone https://github.com/thecsdoctor/brendangregg-use-tsa-skill \
+  ~/.kimi-code/skills/brendangregg-use-tsa
+```
+
+- Also scanned: `~/.agents/skills/` (shared with other agents).
+- Project-level: `<project>/.kimi-code/skills/` or `<project>/.agents/skills/`.
+- Use: automatic via the description, or invoke `/skill:brendangregg-use-tsa`.
+
+### OpenAI Codex
+
+```bash
+git clone https://github.com/thecsdoctor/brendangregg-use-tsa-skill \
+  ~/.codex/skills/brendangregg-use-tsa
+```
+
+- Codex picks skills up from `~/.codex/skills/` automatically based on the
+  task; no extra wiring needed.
+- Legacy/fallback: copy `SKILL.md` to `~/.codex/prompts/use-tsa.md` to get a
+  `/use-tsa` custom prompt, or reference the repo from your `AGENTS.md`.
+
+### OpenClaw
+
+OpenClaw auto-discovers conventional `skills/` directories in the agent
+workspace:
+
+```bash
+git clone https://github.com/thecsdoctor/brendangregg-use-tsa-skill \
+  <your-openclaw-workspace>/skills/brendangregg-use-tsa
+```
+
+- Then start a new session (or restart the gateway) so the skill is picked up.
+
+### Gemini CLI
+
+Gemini CLI has no native skill loader; use its context-file import:
+
+```bash
+git clone https://github.com/thecsdoctor/brendangregg-use-tsa-skill ~/skills/brendangregg-use-tsa
+echo '@~/skills/brendangregg-use-tsa/SKILL.md' >> ~/.gemini/GEMINI.md
+```
+
+### Cursor
+
+Copy the skill body into a rule file with Cursor frontmatter:
+
+```bash
+git clone https://github.com/thecsdoctor/brendangregg-use-tsa-skill ~/skills/brendangregg-use-tsa
+mkdir -p .cursor/rules
+{ printf -- '---\ndescription: Methodical performance troubleshooting (USE+TSA) — triage, RCA, postmortems\nglobs:\nalwaysApply: false\n---\n\n'; \
+  awk '/^---$/{n++; next} n==2' ~/skills/brendangregg-use-tsa/SKILL.md; } \
+  > .cursor/rules/brendangregg-use-tsa.mdc
+```
+
+### Windsurf
+
+```bash
+mkdir -p .windsurf/rules
+cp ~/skills/brendangregg-use-tsa/SKILL.md .windsurf/rules/brendangregg-use-tsa.md
+```
+
+### Aider
+
+```bash
+aider --read ~/skills/brendangregg-use-tsa/SKILL.md
+# or persist: add "~/skills/brendangregg-use-tsa/SKILL.md" to read: in .aider.conf.yml
+```
+
+### Any agent-skills-compatible tool (universal location)
+
+`~/.agents/skills/` is the emerging cross-vendor shared skills directory
+(read by Kimi Code and others):
+
+```bash
+git clone https://github.com/thecsdoctor/brendangregg-use-tsa-skill \
+  ~/.agents/skills/brendangregg-use-tsa
+```
+
+### Any other LLM/agent (manual)
+
+Paste `SKILL.md` into the system prompt or context, and give the agent access
+to the `references/` and `templates/` files. The skill is plain markdown with
+relative links — nothing executable, nothing to build.
+
+### Verify the install
+
+Ask your agent something like *"list your skills"* or *"a server is slow,
+what do you check first?"* — the answer should start with the problem
+statement questions and the 60-second sweep, not random commands.
+
+## Using it
+
+Once installed, just describe the symptom:
+
+- *"Prod API p99 went from 90ms to 2s after today's deploy. Figure out why
+  and write the RCA."*
+- *"This box feels slow. Triage it and tell me what you ruled out."*
+- *"MySQL is eating CPU on db-01. Profile it properly (no guessing)."*
+- *"Write the postmortem for last night's outage — evidence table included."*
+
+The agent will follow the phases, run read-only diagnostics first, keep an
+evidence trail, and produce a report from `templates/`. See
+[`examples/example-postmortem.md`](examples/example-postmortem.md) for the
+shape of a finished document.
+
+## The methods in one paragraph each
+
+**USE (Utilization, Saturation, Errors)** — resource-oriented. For every
+resource (CPUs, memory, NICs, disks, controllers, interconnects — plus locks,
+thread pools, FDs, and cgroup/hypervisor limits), check: how busy is it, how
+much work is queued behind it, and is it erroring? It's the emergency
+checklist from the flight manual: it finds ~80% of server issues with ~5% of
+the effort, and what it can't measure becomes a documented known-unknown
+instead of an unknown-unknown.
+
+**TSA (Thread State Analysis)** — thread-oriented. Split each thread's time
+into Executing / Runnable / Anonymous Paging / Sleeping / Lock / Idle, then
+investigate the biggest states with state-appropriate tools. It's the
+complementary perspective to USE (threads instead of resources), and it
+exposes lies like "time spent in MySQL" that was really time waiting for a
+CPU another tenant stole.
+
+**Supporting cast**: off-CPU analysis (why threads block, with stacks), flame
+graphs (where CPU time goes, visually), workload characterization, drill-down,
+time-division latency analysis, RED for microservices, active benchmarking —
+and the six anti-methodologies to refuse.
+
+## Provenance & attribution
+
+This is an original, educational distillation of publicly published work by
+**Brendan Gregg** — [brendangregg.com](https://www.brendangregg.com), *Systems
+Performance: Enterprise and the Cloud* (2nd ed., 2020), *BPF Performance
+Tools* (2019), and "Thinking Methodically about Performance" (ACM Queue 2012
+/ CACM 2013). Specific pages distilled: the USE Method, the TSA Method, the
+USE Linux checklist, the USE Rosetta Stone, Off-CPU Analysis, Flame Graphs,
+the methodology list, and the Linux performance pages. The RED Method is by
+Tom Wilkie; Method R by Millsap & Holt; the mantras by Hanson & Crain — all
+credited where used.
+
+Two honest notes:
+
+- **The OS-specific TSA checklists were never published.** Gregg's
+  `tsa-linux.html`/`tsa-solaris.html` have been "Under construction" stubs
+  since 2014 (verified against the live site and a decade of Wayback
+  snapshots). [`references/tsa-linux.md`](references/tsa-linux.md) is
+  therefore a labeled reconstruction from his TSA page, USE-Linux checklist,
+  and off-CPU work.
+- The source HTML snapshots used during authoring are **not redistributed**
+  in this repo (they are Gregg's copyrighted pages); everything here is
+  original text written from them, with attribution. Follow the links above
+  for the primary sources — they are better than any summary.
+
+## Contributing
+
+Issues and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Especially
+valuable: per-OS checklist expansions (FreeBSD, macOS, Windows), corrections
+against the primary sources, and new worked examples. Please be kind:
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+## Changelog & License
+
+See [CHANGELOG.md](CHANGELOG.md). [MIT licensed](LICENSE) — the license file
+includes the attribution note above.
